@@ -175,13 +175,15 @@ def convert_rows(selected, occupied, previous):
 # occupied_identities
 #
 # Items, characters and teleport buildings share one reference space; every
-# table of the output and of the later client is reserved, except our shard.
+# table of the output and of the later client is reserved, except the caller's
+# own shard (ours by default; another importer passes its shard so a rebuild
+# does not reserve the identities it is about to retain).
 # ================
-def occupied_identities(text_root, later_rows):
+def occupied_identities(text_root, later_rows, own_shard=OUTPUT_SHARD):
 	occupied = {int(row[items.IDENTITY]) for row in later_rows}
 	for path in text_root.iterdir():
 		name = path.name.lower()
-		if name == OUTPUT_SHARD or not name.startswith(("itemdata_", "characterdata_", "teleportbuilding")):
+		if name == own_shard or not name.startswith(("itemdata_", "characterdata_", "teleportbuilding")):
 			continue
 		occupied.update(int(row[1]) for row in tables.table_rows(path.read_bytes()) if len(row) > 1 and row[1].isdigit())
 	return occupied
