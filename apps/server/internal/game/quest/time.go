@@ -168,6 +168,7 @@ func (rt *Runtime) planQuestCleanup(c *enterworld.Character, def *Definition) ([
 	consume = append(consume, deliveryCleanup(c, def)...)
 	consume = append(consume, captureSupplyCleanup(c, def)...)
 	consume = append(consume, questToolCleanup(c, def)...)
+	consume = append(consume, clearOnEndAmounts(c, def)...)
 	if len(consume) == 0 {
 		return c.MissionInventory, nil, nil
 	}
