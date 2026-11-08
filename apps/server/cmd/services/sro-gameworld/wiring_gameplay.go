@@ -792,6 +792,7 @@ func (game *gameplayPlane) register(hub *transport.Hub, loadQuests questDefiniti
 	game.deps.RemoveExpiredEventBoxes = game.items.RemoveExpiredHalloweenBoxes
 	game.deps.EntryEventFrames = game.items.EntryEventFrames
 	game.deps.EntryEventGroups = game.items.EntryEventGroups
+	game.wireHwanLevel(quests)
 	if err := game.validateQuestMarkerRoster(); err != nil {
 		return err
 	}

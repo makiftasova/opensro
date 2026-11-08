@@ -254,6 +254,10 @@ func (rt *Runtime) HandleItemUse(
 			result = itemUseFailure(code)
 			return false
 		}
+		if code := rt.hwanItemRequirement(character, ref); code != 0 {
+			result = itemUseFailure(code)
+			return false
+		}
 		nowMs := rt.Now().UnixMilli()
 		if family == itemUseMercenary {
 			if len(tail) != 0 {
