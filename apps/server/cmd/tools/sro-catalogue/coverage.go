@@ -188,4 +188,8 @@ var catalogueExempt = map[string]string{
 	"SRO_BETA_UNIQUE_RESPAWN":                  "unique respawn timing; monsters.json publishes nests, not timers",
 	"SRO_JANGAN_CAVE_RESPAWN":                  "monster respawn timing in the Ch'in Tomb caves; monsters.json publishes nests, not timers",
 	"SRO_WEBTRANSPORT_PUBLIC":                  "how the shard's transport is served; no catalogue file carries it",
+	"SRO_CAP110_QUESTS":                        "a build input consumed when the server data is built; the catalogue publishes the built data",
+	"SRO_HWAN_NIYA_CAPTURE_RATES":              "the odds of a quest's capture roll at runtime; the catalogue publishes no quest rolls",
+	"SRO_HWAN_SUN_RELIC":                       "the odds of a quest's dig roll at runtime; the catalogue publishes no quest rolls",
+	"SRO_HWAN_3_FAST_DROP":                     "how many quest items one kill drops at runtime; the catalogue publishes no quest drops",
 }
