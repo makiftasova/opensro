@@ -478,7 +478,10 @@ export function createCharacterEffects(
 			states: Readonly<Record<number, import("@/engine/contracts/effects").HawkAnimation>>;
 		};
 	};
-	type Attachment = import("@/engine/foundation/gameplay/attached-effects").AttachedEffect & { recordName?: string; };
+	type Attachment = import("@/engine/foundation/gameplay/attached-effects").AttachedEffect & {
+		recordName?: string;
+		quiet?: boolean;
+	};
 	const statuses = new Map<number, { view: StatusView; revisions: Map<string, number>; }>();
 	const recordFor = ( effect: Attachment ) =>
 		effect.recordName ? namedCatalog?.[effect.recordName] : catalog?.[String( effect.skill )];
@@ -499,8 +502,19 @@ export function createCharacterEffects(
 		materialOwners = new Map<string, number>();
 	const hwan = new Map<
 		number,
-		{ active: boolean; from: number; value: number; progress: number; previous: number; revision: number; }
+		{
+			active: boolean;
+			from: number;
+			value: number;
+			progress: number;
+			previous: number;
+			revision: number;
+			quiet: boolean;
+		}
 	>();
+	// Characters seen out of Berserk since the last reset: a Berserk already running when
+	// a character first appears (a loading screen) is not an activation and plays no sound.
+	const calm = new Set<number>();
 	const roars = new Map<
 		number,
 		{
@@ -915,7 +929,7 @@ export function createCharacterEffects(
 				);
 				continue;
 			}
-			if ( stage.sound ) {
+			if ( stage.sound && !effect.quiet ) {
 				play( {
 					id: `attached:${effect.gid}:${effect.token}:${effect.receivedAtMs ?? 0}:${stop}:${result.length}`,
 					path: stage.sound,
@@ -1415,10 +1429,19 @@ export function createCharacterEffects(
 							} );
 						}
 					} else if ( !enabled && view.tint === null ) materials.delete( entity.gid );
+					if ( !enabled ) calm.add( entity.gid );
 					let row = hwan.get( entity.gid );
 					if ( !row && !enabled ) continue;
 					if ( !row ) {
-						row = { active: enabled, from: 1, value: 1, progress: 0, previous: now, revision: clock };
+						row = {
+							active: enabled,
+							from: 1,
+							value: 1,
+							progress: 0,
+							previous: now,
+							revision: clock,
+							quiet: !calm.has( entity.gid )
+						};
 						hwan.set( entity.gid, row );
 					}
 					if ( row.active !== enabled ) {
@@ -1440,6 +1463,7 @@ export function createCharacterEffects(
 					row.previous = now;
 				}
 				for ( const gid of hwan.keys() ) if ( !byGid.has( gid ) ) hwan.delete( gid );
+				for ( const gid of calm ) if ( !byGid.has( gid ) ) calm.delete( gid );
 				for ( const gid of statuses.keys() ) {
 					if ( !byGid.has( gid ) ) {
 						statuses.delete( gid );
@@ -4261,6 +4285,7 @@ export function createCharacterEffects(
 			materials.clear();
 			materialOwners.clear();
 			hwan.clear();
+			calm.clear();
 			roars.clear();
 			wolfSkills.clear();
 			penguinBolts.reset();
@@ -4308,6 +4333,7 @@ export function createCharacterEffects(
 			materials.clear();
 			materialOwners.clear();
 			hwan.clear();
+			calm.clear();
 			roars.clear();
 			wolfSkills.clear();
 			roarAppearances.clear();
